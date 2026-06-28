@@ -64,10 +64,22 @@ function EmptyState() {
   ];
 
   const socials = [
-    { icon: GitBranch, label: "GitHub", href: "#" },
-    { icon: BriefcaseBusiness, label: "LinkedIn", href: "#" },
-    { icon: Globe, label: "Portfolio", href: "#" },
-    { icon: Mail, label: "Email", href: "#" },
+    {
+      icon: GitBranch,
+      label: "GitHub",
+      href: "https://github.com/KamekaziAman/Shibuya-Private-Chatting-App",
+    },
+    {
+      icon: BriefcaseBusiness,
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/amanrai02/",
+    },
+    { icon: Globe, label: "Portfolio", href: "https://kamekazi.netlify.app/" },
+    {
+      icon: Mail,
+      label: "Email",
+      href: "https://mail.google.com/mail/u/0/?fs=1&to=amanrai02122004@gmail.com&tf=cm",
+    },
   ];
 
   const container = {
@@ -77,7 +89,11 @@ function EmptyState() {
 
   const item = {
     hidden: { opacity: 0, y: 16 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.45, ease: "easeOut" },
+    },
   };
 
   return (
@@ -99,11 +115,12 @@ function EmptyState() {
             Shibuya
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-[15px] font-medium leading-6 text-zinc-700 sm:text-base">
-            Connect instantly with people through secure one-to-one conversations.
+            Connect instantly with people through secure one-to-one
+            conversations.
           </p>
           <p className="mx-auto mt-2 max-w-2xl text-xs leading-5 text-zinc-500 sm:text-sm sm:leading-6">
-            A calm, thoughtfully designed messaging space for finding people, sharing ideas,
-            and keeping meaningful conversations moving.
+            A calm, thoughtfully designed messaging space for finding people,
+            sharing ideas, and keeping meaningful conversations moving.
           </p>
         </motion.section>
 
@@ -122,7 +139,9 @@ function EmptyState() {
                 <Icon className="h-4 w-4" />
               </span>
               <h3 className="text-[12px] font-bold text-zinc-800">{title}</h3>
-              <p className="mt-1.5 text-[10px] leading-4 text-zinc-500">{description}</p>
+              <p className="mt-1.5 text-[10px] leading-4 text-zinc-500">
+                {description}
+              </p>
             </motion.article>
           ))}
         </motion.section>
@@ -137,7 +156,9 @@ function EmptyState() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-900">Aman Rai</p>
-              <p className="mt-0.5 text-[11px] text-zinc-500">Full Stack Developer</p>
+              <p className="mt-0.5 text-[11px] text-zinc-500">
+                Full Stack Developer
+              </p>
             </div>
           </div>
 
@@ -159,7 +180,10 @@ function EmptyState() {
           </div>
         </motion.section>
 
-        <motion.p variants={item} className="mt-5 text-center text-[10px] text-zinc-400">
+        <motion.p
+          variants={item}
+          className="mt-5 text-center text-[10px] text-zinc-400"
+        >
           Select a conversation from the sidebar to start messaging.
         </motion.p>
       </motion.div>
@@ -191,7 +215,8 @@ export default function ChatLayout() {
   const debouncedSearchQuery = useDebounce(searchQuery.trim(), 300);
 
   const activeConversation = useMemo(
-    () => conversationList.find(({ id }) => id === activeConversationId) ?? null,
+    () =>
+      conversationList.find(({ id }) => id === activeConversationId) ?? null,
     [conversationList, activeConversationId],
   );
 
@@ -205,14 +230,17 @@ export default function ChatLayout() {
 
       setMessagesMap((current) => {
         const existingMessages = current[conversationId] ?? [];
-        const alreadyExists = existingMessages.some(({ id }) => id === normalizedMessage.id);
+        const alreadyExists = existingMessages.some(
+          ({ id }) => id === normalizedMessage.id,
+        );
         if (alreadyExists) return current;
 
         const optimisticIndex = clientId
           ? existingMessages.findIndex(({ id }) => id === clientId)
           : -1;
         const nextMessages = [...existingMessages];
-        if (optimisticIndex >= 0) nextMessages[optimisticIndex] = normalizedMessage;
+        if (optimisticIndex >= 0)
+          nextMessages[optimisticIndex] = normalizedMessage;
         else nextMessages.push(normalizedMessage);
         return { ...current, [conversationId]: nextMessages };
       });
@@ -233,7 +261,9 @@ export default function ChatLayout() {
           ? [selected, ...updated.filter(({ id }) => id !== conversationId)]
           : updated;
       });
-      setTypingUsers((users) => users.filter((username) => username !== message.sender));
+      setTypingUsers((users) =>
+        users.filter((username) => username !== message.sender),
+      );
     },
     [activeConversationId, user.username],
   );
@@ -246,7 +276,9 @@ export default function ChatLayout() {
       const isActiveConversation = conversationId === activeConversationId;
 
       setConversationList((items) => {
-        const conversationExists = items.some(({ id }) => id === conversationId);
+        const conversationExists = items.some(
+          ({ id }) => id === conversationId,
+        );
         const updated = conversationExists
           ? items.map((item) =>
               item.id === conversationId
@@ -255,14 +287,18 @@ export default function ChatLayout() {
                     ...normalizedConversation,
                     online: item.online,
                     status: item.status,
-                    unreadCount: isActiveConversation ? 0 : normalizedConversation.unreadCount,
+                    unreadCount: isActiveConversation
+                      ? 0
+                      : normalizedConversation.unreadCount,
                   }
                 : item,
             )
           : [
               {
                 ...normalizedConversation,
-                unreadCount: isActiveConversation ? 0 : normalizedConversation.unreadCount,
+                unreadCount: isActiveConversation
+                  ? 0
+                  : normalizedConversation.unreadCount,
               },
               ...items,
             ];
@@ -285,7 +321,9 @@ export default function ChatLayout() {
 
       setMessagesMap((current) => {
         const existingMessages = current[conversationId] ?? [];
-        const alreadyExists = existingMessages.some(({ id }) => id === normalizedMessage.id);
+        const alreadyExists = existingMessages.some(
+          ({ id }) => id === normalizedMessage.id,
+        );
         if (alreadyExists) return current;
 
         const clientId = message.client_id;
@@ -293,11 +331,14 @@ export default function ChatLayout() {
           ? existingMessages.findIndex(({ id }) => id === clientId)
           : -1;
         const nextMessages = [...existingMessages];
-        if (optimisticIndex >= 0) nextMessages[optimisticIndex] = normalizedMessage;
+        if (optimisticIndex >= 0)
+          nextMessages[optimisticIndex] = normalizedMessage;
         else nextMessages.push(normalizedMessage);
         return { ...current, [conversationId]: nextMessages };
       });
-      setTypingUsers((users) => users.filter((username) => username !== message.sender));
+      setTypingUsers((users) =>
+        users.filter((username) => username !== message.sender),
+      );
     },
     [activeConversationId, user.username],
   );
@@ -309,7 +350,8 @@ export default function ChatLayout() {
       window.clearTimeout(typingTimersRef.current.get(username));
 
       setTypingUsers((users) => {
-        if (isTyping) return users.includes(username) ? users : [...users, username];
+        if (isTyping)
+          return users.includes(username) ? users : [...users, username];
         return users.filter((item) => item !== username);
       });
 
@@ -327,9 +369,16 @@ export default function ChatLayout() {
   );
 
   const handlePresenceUpdate = useCallback(
-    ({ user_id: userId, username, is_online: isOnline, status, last_seen: lastSeen }) => {
+    ({
+      user_id: userId,
+      username,
+      is_online: isOnline,
+      status,
+      last_seen: lastSeen,
+    }) => {
       if (username === user.username) return;
-      const online = typeof isOnline === "boolean" ? isOnline : status === "online";
+      const online =
+        typeof isOnline === "boolean" ? isOnline : status === "online";
       setConversationList((items) =>
         items.map((item) =>
           item.userId === userId || item.username === username
@@ -337,7 +386,9 @@ export default function ChatLayout() {
                 ...item,
                 online,
                 lastSeen: lastSeen || item.lastSeen,
-                status: online ? "Online" : formatLastSeen(lastSeen || item.lastSeen),
+                status: online
+                  ? "Online"
+                  : formatLastSeen(lastSeen || item.lastSeen),
               }
             : item,
         ),
@@ -352,10 +403,11 @@ export default function ChatLayout() {
       const readIds = new Set(messageIds);
       setMessagesMap((current) => ({
         ...current,
-        [activeConversationId]: (current[activeConversationId] ?? []).map((message) =>
-          message.sender === "me" && readIds.has(message.id)
-            ? { ...message, status: "Read" }
-            : message,
+        [activeConversationId]: (current[activeConversationId] ?? []).map(
+          (message) =>
+            message.sender === "me" && readIds.has(message.id)
+              ? { ...message, status: "Read" }
+              : message,
         ),
       }));
     },
@@ -368,8 +420,9 @@ export default function ChatLayout() {
       if (!clientId || !activeConversationId) return;
       setMessagesMap((current) => ({
         ...current,
-        [activeConversationId]: (current[activeConversationId] ?? []).map((item) =>
-          item.id === clientId ? { ...item, status: "Failed" } : item,
+        [activeConversationId]: (current[activeConversationId] ?? []).map(
+          (item) =>
+            item.id === clientId ? { ...item, status: "Failed" } : item,
         ),
       }));
     },
@@ -473,20 +526,28 @@ export default function ChatLayout() {
     setTypingUsers([]);
     setMessagesMap((current) => ({ ...current, [id]: [] }));
     setConversationList((items) =>
-      items.map((item) => (item.id === id ? { ...item, unreadCount: 0 } : item)),
+      items.map((item) =>
+        item.id === id ? { ...item, unreadCount: 0 } : item,
+      ),
     );
 
     try {
       const data = await fetchMessages(id);
-      const loadedMessages = data.map((message) => mapMessage(message, user.username));
+      const loadedMessages = data.map((message) =>
+        mapMessage(message, user.username),
+      );
       setMessagesMap((current) => {
         const messagesReceivedWhileLoading = current[id] ?? [];
-        const loadedIds = new Set(loadedMessages.map(({ id: messageId }) => messageId));
+        const loadedIds = new Set(
+          loadedMessages.map(({ id: messageId }) => messageId),
+        );
         return {
           ...current,
           [id]: [
             ...loadedMessages,
-            ...messagesReceivedWhileLoading.filter(({ id: messageId }) => !loadedIds.has(messageId)),
+            ...messagesReceivedWhileLoading.filter(
+              ({ id: messageId }) => !loadedIds.has(messageId),
+            ),
           ],
         };
       });
@@ -500,7 +561,8 @@ export default function ChatLayout() {
   const handleStartConversation = async (person) => {
     setChatError("");
     try {
-      const { conversation_id: conversationId } = await createOrOpenConversation(person.id);
+      const { conversation_id: conversationId } =
+        await createOrOpenConversation(person.id);
       const conversations = await loadConversations();
       setSearchQuery("");
       setSearchResults([]);
@@ -544,7 +606,11 @@ export default function ChatLayout() {
     setConversationList((items) => {
       const updated = items.map((item) =>
         item.id === conversationId
-          ? { ...item, lastMessage: previewText, timestamp: formatMessageTime(new Date()) }
+          ? {
+              ...item,
+              lastMessage: previewText,
+              timestamp: formatMessageTime(new Date()),
+            }
           : item,
       );
       const active = updated.find(({ id }) => id === conversationId);
@@ -577,7 +643,8 @@ export default function ChatLayout() {
       const normalizedMessage = mapMessage(message, user.username);
       setMessagesMap((current) => {
         const existingMessages = current[activeConversationId] ?? [];
-        if (existingMessages.some(({ id }) => id === normalizedMessage.id)) return current;
+        if (existingMessages.some(({ id }) => id === normalizedMessage.id))
+          return current;
         return {
           ...current,
           [activeConversationId]: [...existingMessages, normalizedMessage],
@@ -596,10 +663,17 @@ export default function ChatLayout() {
         );
         const selected = updated.find(({ id }) => id === activeConversationId);
         return selected
-          ? [selected, ...updated.filter(({ id }) => id !== activeConversationId)]
+          ? [
+              selected,
+              ...updated.filter(({ id }) => id !== activeConversationId),
+            ]
           : updated;
       });
-      showActionToast("Attachment sent successfully.", "success", "Attachment uploaded");
+      showActionToast(
+        "Attachment sent successfully.",
+        "success",
+        "Attachment uploaded",
+      );
     } catch (error) {
       const message = getApiErrorMessage(error);
       showActionToast(message, "error", "Upload failed");
@@ -698,7 +772,11 @@ export default function ChatLayout() {
     const file = event.dataTransfer.files?.[0];
     if (!file) return;
     if (file.size > MAX_ATTACHMENT_SIZE) {
-      showActionToast("File size must be less than 5 MB.", "error", "Upload failed");
+      showActionToast(
+        "File size must be less than 5 MB.",
+        "error",
+        "Upload failed",
+      );
       return;
     }
     setDroppedAttachment(file);
@@ -716,7 +794,9 @@ export default function ChatLayout() {
             exit={{ opacity: 0, y: -12, scale: 0.96 }}
             onClick={() => setActionToast(null)}
             className={`absolute right-4 top-4 z-40 max-w-[calc(100%-2rem)] rounded-[18px] border-2 bg-white/92 px-4 py-3 text-left shadow-[0_18px_45px_rgba(24,24,27,0.18)] backdrop-blur-xl md:max-w-sm ${
-              actionToast.type === "error" ? "border-red-500" : "border-zinc-950"
+              actionToast.type === "error"
+                ? "border-red-500"
+                : "border-zinc-950"
             }`}
           >
             <p
@@ -746,8 +826,12 @@ export default function ChatLayout() {
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400">
               New message
             </p>
-            <p className="mt-1 text-sm font-bold text-zinc-950">{inboxToast.username}</p>
-            <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600">{inboxToast.content}</p>
+            <p className="mt-1 text-sm font-bold text-zinc-950">
+              {inboxToast.username}
+            </p>
+            <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600">
+              {inboxToast.content}
+            </p>
           </motion.button>
         )}
       </AnimatePresence>
@@ -797,8 +881,12 @@ export default function ChatLayout() {
                     className="pointer-events-none absolute inset-x-3 bottom-24 top-24 z-40 grid place-items-center rounded-[28px] border-2 border-dashed border-[#7C3AED] bg-[#7C3AED]/12 text-center backdrop-blur-sm"
                   >
                     <div className="rounded-[22px] border border-white/20 bg-white/70 px-6 py-5 shadow-xl dark:bg-[#1E2430]/88">
-                      <p className="text-sm font-bold text-zinc-950 dark:text-[#F3F4F6]">Drop to attach</p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-[#9CA3AF]">Images, videos, PDFs, docs, archives up to 5 MB.</p>
+                      <p className="text-sm font-bold text-zinc-950 dark:text-[#F3F4F6]">
+                        Drop to attach
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-[#9CA3AF]">
+                        Images, videos, PDFs, docs, archives up to 5 MB.
+                      </p>
                     </div>
                   </motion.div>
                 )}
@@ -821,7 +909,11 @@ export default function ChatLayout() {
                     className="soft-divider flex items-center justify-between gap-3 border-b bg-zinc-100 px-5 py-2.5 text-xs font-medium text-zinc-700"
                   >
                     <span>{chatError}</span>
-                    <button type="button" onClick={() => setChatError("")} className="font-bold text-zinc-950">
+                    <button
+                      type="button"
+                      onClick={() => setChatError("")}
+                      className="font-bold text-zinc-950"
+                    >
                       Dismiss
                     </button>
                   </motion.div>
