@@ -1,10 +1,25 @@
 import axios from "axios";
 import { tokenStorage } from "../services/tokenStorage";
 
-const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-export const API_BASE_URL = configuredBaseUrl.endsWith("/")
-  ? configuredBaseUrl
-  : `${configuredBaseUrl}/`;
+function getApiBaseUrl() {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  if (configuredBaseUrl) {
+    return configuredBaseUrl.endsWith("/")
+      ? configuredBaseUrl
+      : `${configuredBaseUrl}/`;
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+  ) {
+    return `${window.location.protocol}//${window.location.hostname}:8000/api/`;
+  }
+
+  return `${window.location.origin}/api/`;
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -19,7 +34,8 @@ function normalizeApiError(error) {
   let message = "Something went wrong. Please try again.";
 
   if (!error.response) {
-    message = "Unable to reach the server. Check that the Django API is running.";
+    message =
+      "Unable to reach the server. Check that the Django API is running.";
   } else if (typeof data?.detail === "string") {
     message = data.detail;
   } else if (typeof data === "string") {
@@ -45,15 +61,16 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const refreshToken = tokenStorage.getRefreshToken();
-    const isAuthEndpoint = originalRequest?.url?.includes("accounts/login/")
-      || originalRequest?.url?.includes("accounts/refresh/");
+    const isAuthEndpoint =
+      originalRequest?.url?.includes("accounts/login/") ||
+      originalRequest?.url?.includes("accounts/refresh/");
 
     if (
-      error.response?.status === 401
-      && refreshToken
-      && originalRequest
-      && !originalRequest._retry
-      && !isAuthEndpoint
+      error.response?.status === 401 &&
+      refreshToken &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
     ) {
       originalRequest._retry = true;
 
@@ -62,7 +79,10 @@ api.interceptors.response.use(
           refreshPromise = axios
             .post(`${API_BASE_URL}accounts/refresh/`, { refresh: refreshToken })
             .then(({ data }) => {
-              tokenStorage.setTokens({ access: data.access, refresh: data.refresh });
+              tokenStorage.setTokens({
+                access: data.access,
+                refresh: data.refresh,
+              });
               return data.access;
             })
             .finally(() => {

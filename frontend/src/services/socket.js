@@ -2,7 +2,9 @@ import { tokenStorage } from "./tokenStorage";
 
 function getWebSocketBaseUrl() {
   if (import.meta.env.VITE_WS_BASE_URL) {
-    return import.meta.env.VITE_WS_BASE_URL;
+    return import.meta.env.VITE_WS_BASE_URL.endsWith("/")
+      ? import.meta.env.VITE_WS_BASE_URL
+      : `${import.meta.env.VITE_WS_BASE_URL}/`;
   }
 
   if (import.meta.env.VITE_API_BASE_URL) {
@@ -11,13 +13,22 @@ function getWebSocketBaseUrl() {
     return `${protocol}//${apiUrl.host}/ws/`;
   }
 
+  if (
+    typeof window !== "undefined" &&
+    /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+  ) {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${protocol}//${window.location.hostname}:8000/ws/`;
+  }
+
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${window.location.hostname}:8000/ws/`;
+  return `${protocol}//${window.location.host}/ws/`;
 }
 
 export function createChatSocket(conversationId) {
   const token = tokenStorage.getAccessToken();
-  if (!token) throw new Error("An access token is required to open the chat socket.");
+  if (!token)
+    throw new Error("An access token is required to open the chat socket.");
 
   const baseUrl = getWebSocketBaseUrl();
   const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
@@ -28,7 +39,10 @@ export function createChatSocket(conversationId) {
 
 export function createNotificationsSocket() {
   const token = tokenStorage.getAccessToken();
-  if (!token) throw new Error("An access token is required to open the notifications socket.");
+  if (!token)
+    throw new Error(
+      "An access token is required to open the notifications socket.",
+    );
 
   const baseUrl = getWebSocketBaseUrl();
   const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;

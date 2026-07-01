@@ -7,22 +7,37 @@ const avatarGradients = [
 ];
 
 function getApiOrigin() {
-  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-  return new URL(configuredBaseUrl).origin;
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return new URL(import.meta.env.VITE_API_BASE_URL).origin;
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+  ) {
+    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  }
+
+  return window.location.origin;
 }
 
 export function getInitials(name = "") {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "?";
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?"
+  );
 }
 
 function stringHash(value) {
-  return [...value].reduce((hash, character) => hash + character.charCodeAt(0), 0);
+  return [...value].reduce(
+    (hash, character) => hash + character.charCodeAt(0),
+    0,
+  );
 }
 
 export function formatConversationTime(value) {
@@ -61,7 +76,10 @@ function resolveAttachmentUrl(url = "") {
 export function formatFileSize(bytes = 0) {
   if (!bytes) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
   const value = bytes / 1024 ** index;
   return `${value >= 10 || index === 0 ? Math.round(value) : value.toFixed(1)} ${units[index]}`;
 }
@@ -75,7 +93,13 @@ function getExtension(name = "", type = "") {
 export function normalizeAttachment(attachment) {
   if (!attachment) return null;
   const category = attachment.category || attachment.type || "file";
-  const name = attachment.name || (category === "image" ? "Image" : category === "video" ? "Video" : "Attachment");
+  const name =
+    attachment.name ||
+    (category === "image"
+      ? "Image"
+      : category === "video"
+        ? "Video"
+        : "Attachment");
   return {
     category,
     type: category,
@@ -83,7 +107,10 @@ export function normalizeAttachment(attachment) {
     name,
     size: attachment.size || 0,
     formattedSize: formatFileSize(attachment.size || 0),
-    extension: getExtension(name, attachment.type || attachment.mime_type || ""),
+    extension: getExtension(
+      name,
+      attachment.type || attachment.mime_type || "",
+    ),
     url: resolveAttachmentUrl(attachment.url),
   };
 }
@@ -92,7 +119,9 @@ export function createMessageAttachment(content = "") {
   const trimmedContent = content.trim();
   if (!isImageLikeUrl(trimmedContent)) return null;
 
-  const isGif = /\.gif(\?\S*)?$/i.test(trimmedContent) || /giphy|tenor/i.test(trimmedContent);
+  const isGif =
+    /\.gif(\?\S*)?$/i.test(trimmedContent) ||
+    /giphy|tenor/i.test(trimmedContent);
 
   return {
     type: "image",
@@ -147,7 +176,8 @@ export function mapConversation(conversation) {
     userId: conversation.user_id,
     username,
     initials: getInitials(username),
-    avatarGradient: avatarGradients[stringHash(username) % avatarGradients.length],
+    avatarGradient:
+      avatarGradients[stringHash(username) % avatarGradients.length],
     lastMessage: conversation.last_message
       ? getMessagePreview(conversation.last_message)
       : "Start a conversation",
@@ -161,9 +191,11 @@ export function mapConversation(conversation) {
 
 export function mapMessage(message, currentUsername) {
   const serverAttachment = normalizeAttachment(message.attachment);
-  const urlAttachment = serverAttachment ? null : createMessageAttachment(message.content);
+  const urlAttachment = serverAttachment
+    ? null
+    : createMessageAttachment(message.content);
   const attachment = serverAttachment || urlAttachment;
-  const content = urlAttachment ? "" : (message.content || "");
+  const content = urlAttachment ? "" : message.content || "";
   const previewText = content.trim()
     ? content
     : attachment
