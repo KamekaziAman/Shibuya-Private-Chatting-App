@@ -5,6 +5,11 @@ export async function loginUser(credentials) {
   return data;
 }
 
+export async function refreshAccessToken(refresh) {
+  const { data } = await api.post("accounts/refresh/", { refresh });
+  return data;
+}
+
 export async function registerUser(credentials) {
   const { data } = await api.post("accounts/register/", credentials);
   return data;
@@ -42,7 +47,10 @@ export async function sendMessage(conversationId, content) {
   return data;
 }
 
-export async function uploadMessageAttachment(conversationId, { file, content = "", onProgress }) {
+export async function uploadMessageAttachment(
+  conversationId,
+  { file, content = "", onProgress },
+) {
   const formData = new FormData();
   formData.append("attachment_file", file);
   if (content.trim()) formData.append("content", content.trim());
@@ -51,7 +59,9 @@ export async function uploadMessageAttachment(conversationId, { file, content = 
     headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress(progressEvent) {
       if (!progressEvent.total || !onProgress) return;
-      onProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+      onProgress(
+        Math.round((progressEvent.loaded * 100) / progressEvent.total),
+      );
     },
   });
   return data;

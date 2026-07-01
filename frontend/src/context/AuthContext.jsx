@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCurrentUser,
   loginUser,
+  refreshAccessToken,
   registerUser,
 } from "../api/chatApi";
 import { tokenStorage } from "../services/tokenStorage";
@@ -42,12 +43,20 @@ export function AuthProvider({ children }) {
     let active = true;
 
     async function restoreSession() {
-      if (!tokenStorage.getAccessToken() && !tokenStorage.getRefreshToken()) {
+      const accessToken = tokenStorage.getAccessToken();
+      const refreshToken = tokenStorage.getRefreshToken();
+
+      if (!accessToken && !refreshToken) {
         if (active) setLoading(false);
         return;
       }
 
       try {
+        if (refreshToken) {
+          const tokens = await refreshAccessToken(refreshToken);
+          tokenStorage.setTokens(tokens);
+        }
+
         const currentUser = await getCurrentUser();
         if (active) setUser(currentUser);
       } catch {
@@ -67,7 +76,14 @@ export function AuthProvider({ children }) {
   }, [logout]);
 
   const value = useMemo(
-    () => ({ user, loading, isAuthenticated: Boolean(user), login, register, logout }),
+    () => ({
+      user,
+      loading,
+      isAuthenticated: Boolean(user),
+      login,
+      register,
+      logout,
+    }),
     [user, loading, login, register, logout],
   );
 
