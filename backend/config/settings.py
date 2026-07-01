@@ -39,7 +39,11 @@ SECRET_KEY = os.getenv("secret_key", "your-secret-key")
 DEBUG = True
 CORS_ALLOW_ALL_ORIGINS = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "shibuya.onrender.com",
+]
 
 
 # Application definition
