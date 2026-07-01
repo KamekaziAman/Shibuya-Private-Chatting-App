@@ -2,9 +2,13 @@ import { tokenStorage } from "./tokenStorage";
 
 function getWebSocketBaseUrl() {
   if (import.meta.env.VITE_WS_BASE_URL) {
-    return import.meta.env.VITE_WS_BASE_URL.endsWith("/")
+    const configuredBaseUrl = import.meta.env.VITE_WS_BASE_URL.endsWith("/")
       ? import.meta.env.VITE_WS_BASE_URL
       : `${import.meta.env.VITE_WS_BASE_URL}/`;
+
+    return configuredBaseUrl.endsWith("/ws/")
+      ? configuredBaseUrl
+      : `${configuredBaseUrl}ws/`;
   }
 
   if (import.meta.env.VITE_API_BASE_URL) {

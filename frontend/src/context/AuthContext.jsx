@@ -27,7 +27,15 @@ export function AuthProvider({ children }) {
       return currentUser;
     } catch (error) {
       tokenStorage.clearTokens();
-      throw error;
+
+      if (error?.response?.status) {
+        throw error;
+      }
+
+      throw new Error(
+        error?.userMessage ||
+          "Login succeeded, but the session could not be restored.",
+      );
     }
   }, []);
 
